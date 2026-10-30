@@ -36,3 +36,12 @@ Start with a modular monolith and explicit domain boundaries. Extract independen
 6. Partitioning, regional deployment and service extraction only based on measured bottlenecks.
 
 A billion-user ambition is a product direction, not a current capacity claim. Capacity must be established through architecture reviews, load tests, security reviews and operational readiness.
+
+
+## Phase 2 identity model
+- `User`: unique normalized email, password hash, role, profile basics and timestamps.
+- `Session`: opaque random token stored only as a SHA-256 hash, user relation and expiry.
+- Passwords are hashed with bcryptjs (cost 12); plaintext passwords are never stored.
+- Session cookies are HttpOnly, SameSite=Lax, path-wide and Secure in production.
+- Public registration always assigns USER. The first ADMIN is provisioned only with the one-time seed script and private environment variables.
+- Login/register/logout mutations validate same-origin requests. Add distributed rate limiting and verification flows before public production launch.
