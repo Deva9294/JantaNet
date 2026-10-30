@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LogOut, RadioTower, ShieldCheck } from "lucide-react";
+import { RadioTower, ShieldCheck } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import SignOutButton from "./sign-out-button";
 
