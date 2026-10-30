@@ -2,42 +2,46 @@
 
 **Connect • Chat • Share • Earn**
 
-JantaNet is planned as a modular, privacy-first digital community platform. This repository is being built in phases; the first milestone establishes a maintainable application foundation before social, messaging, creator, commerce, cloud, and payment modules are added.
+JantaNet is a modular, privacy-first digital community platform. The repository is delivered in phases; the initial foundation and identity groundwork are being developed before social, messaging, creator, commerce, cloud, and payment modules are enabled.
 
-## Delivery principles
-- Ship working, testable slices instead of a large unverified feature dump.
-- Keep authentication, authorization, validation, auditability, and privacy at the core.
-- Use provider interfaces for payments, storage, notifications, search, and AI so vendors can be changed safely.
-- Never store secrets in source control. Configure them through deployment environment variables.
-- Treat end-to-end encryption, regulated payments, video calling, and large-scale infrastructure as separately engineered milestones with security review.
+## Current implementation
+- Next.js App Router, React and TypeScript foundation.
+- Responsive public landing page and initial design system.
+- Phase 2 identity groundwork: email/password registration and login, opaque server-side sessions, logout, current-user endpoint, profile update API, and protected profile page.
+- PostgreSQL Prisma schema and initial migration.
+- First-admin seed script; public registration cannot assign privileged roles.
+- SEO metadata, sitemap, robots and health endpoint.
+
+**Production note:** identity requires a configured PostgreSQL database. Email verification, password recovery, distributed rate limiting, CAPTCHA/bot protection, and independent security review are still required before opening registration to the public.
 
 ## Planned phases
-1. **Foundation** — Next.js App Router, TypeScript, responsive design system, public landing page, route structure, configuration, health endpoint, architecture and security documentation.
-2. **Identity** — registration, login, email verification, sessions, profiles, roles, account recovery, device/session controls.
-3. **Social core** — feed, posts, reactions, comments, follows, profiles, pages, groups, polls, events and moderation.
-4. **Messaging** — conversations, realtime delivery, attachments, presence, notifications; E2E design and threat model before claiming encrypted chats.
+1. **Foundation** — app scaffold, design system, landing page, SEO, health checks and architecture.
+2. **Identity** — registration, login, sessions, profiles, roles, verification, recovery and device controls.
+3. **Social core** — feed, posts, reactions, comments, follows, profiles, pages, groups, polls and events.
+4. **Messaging** — conversations, realtime delivery, attachments, presence and notifications; E2E design and threat model before claiming encrypted chats.
 5. **Communities & business** — servers, channels, roles, business pages, CRM/leads, jobs and marketplace foundations.
 6. **Creator economy** — media publishing, creator studio, subscriptions, tips, memberships and analytics.
 7. **Cloud & AI** — storage quotas, sharing, backups, AI assistant/search/recommendations with consent and cost controls.
 8. **Payments & monetization** — compliant payment-provider integration, ledger/reconciliation, subscriptions, merchant flows and risk controls.
 9. **Scale & governance** — observability, security testing, accessibility, localization, performance, disaster recovery and progressive infrastructure scaling.
 
-## Initial architecture
-- Web: Next.js App Router + React + TypeScript.
-- Styling: Tailwind CSS with design tokens and accessible primitives.
-- API: start with typed server-side route handlers; split services only when load and ownership justify it.
-- Data: PostgreSQL as the source of truth; Redis for cache/queues/realtime coordination when introduced.
-- Media: object-storage adapter (S3-compatible) plus CDN; do not store uploads in the application filesystem.
-- Realtime: WebSocket/WebRTC adapters introduced in the messaging phase.
-- Operations: environment-based configuration, structured logs, health checks, CI checks and documented deployment.
-
 ## Local development
 1. Install Node.js 20.9 or newer.
 2. Run `npm install`.
-3. Copy `.env.example` to `.env.local` and fill only the values for services you have configured.
-4. Run `npm run dev`.
+3. Copy `.env.example` to `.env.local`; set `DATABASE_URL` to a PostgreSQL database.
+4. Run `npm run db:deploy` to apply committed migrations.
+5. Run `npm run dev`.
 
-The foundation can run without database credentials; database-backed features will remain unavailable until configured.
+Useful commands: `npm run db:generate`, `npm run db:migrate`, `npm run db:deploy`, `npm run db:seed`, `npm run typecheck`, `npm run lint`, `npm run build`.
 
-## Security baseline
+### First administrator
+Set `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` (at least 14 characters), and optionally `SEED_ADMIN_NAME` in a private environment, then run `npm run db:seed` once. Never put these values in source control or expose this seed process as a public endpoint.
+
+## Architecture and security
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/SECURITY.md](docs/SECURITY.md). Never commit real credentials, OTPs, access tokens, private keys, or production user data.
+
+## Security boundaries
+- No real credentials are stored in this repository.
+- Public registration always creates a USER role.
+- Sessions store only a hash of a cryptographically random token.
+- Payment custody, end-to-end encrypted chat, large-scale video and billion-user capacity are not claimed as implemented.
