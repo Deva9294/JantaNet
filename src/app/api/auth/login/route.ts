@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
-  if (!parsed.success) {
+  if (!parsed.success || Buffer.byteLength(parsed.data?.password ?? "", "utf8") > 72) {
     return NextResponse.json({ error: "Enter a valid email and password." }, { status: 400 });
   }
 
