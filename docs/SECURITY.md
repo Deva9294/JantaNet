@@ -20,3 +20,13 @@
 
 ## Incident readiness
 Define severity levels, security contact, incident runbooks, key rotation, user notification criteria, backup restoration and post-incident review before public scale.
+
+
+## Phase 2 deployment gate
+The initial email/password flow is a foundation, not yet ready for an unrestricted public launch. Before enabling public registration:
+- Put the app behind Redis-backed IP + account rate limits for register/login and add bot protection.
+- Add email verification and secure password recovery with one-time, hashed, expiring tokens.
+- Configure a managed PostgreSQL database, TLS-only connection string, backups and restore test.
+- Configure HTTPS and verify secure cookie behavior on the production domain.
+- Add automated auth tests, dependency/secret scanning and an independent security review.
+- Create the first administrator only through the documented one-time seed process. Never expose role selection in public registration.
