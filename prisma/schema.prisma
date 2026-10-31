@@ -30,6 +30,14 @@ model User {
   likes        Like[]
   following    Follow[] @relation("UserFollowing")
   followers    Follow[] @relation("UserFollowers")
+  createdGroups Group[] @relation("GroupCreator")
+  groupMemberships GroupMember[]
+  createdPages Page[] @relation("PageCreator")
+  pageFollows PageFollower[]
+  createdPolls Poll[]
+  pollVotes PollVote[]
+  createdEvents Event[] @relation("EventCreator")
+  eventAttendances EventAttendee[]
 
   @@index([createdAt])
 }
@@ -96,4 +104,111 @@ model Follow {
 
   @@unique([followerId, followingId])
   @@index([followingId])
+}
+
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(80)
+  slug        String   @unique
+  description String   @db.VarChar(1000)
+  privacy     String   @default("PUBLIC") @db.VarChar(12)
+  creatorId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  creator     User     @relation("GroupCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+  @@index([createdAt])
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  role      String   @default("MEMBER") @db.VarChar(12)
+  joinedAt  DateTime @default(now())
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([groupId, userId])
+  @@index([userId])
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(80)
+  slug        String   @unique
+  description String   @db.VarChar(1000)
+  category    String   @db.VarChar(40)
+  creatorId   String
+  createdAt   DateTime @default(now())
+  creator     User     @relation("PageCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  followers   PageFollower[]
+  @@index([createdAt])
+}
+
+model PageFollower {
+  id        String   @id @default(cuid())
+  pageId    String
+  userId    String
+  followedAt DateTime @default(now())
+  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([pageId, userId])
+  @@index([userId])
+}
+
+model Poll {
+  id        String   @id @default(cuid())
+  question  String   @db.VarChar(300)
+  creatorId String
+  createdAt DateTime @default(now())
+  creator   User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  options   PollOption[]
+  @@index([createdAt])
+}
+
+model PollOption {
+  id     String @id @default(cuid())
+  pollId String
+  text   String @db.VarChar(120)
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes  PollVote[]
+  @@index([pollId])
+}
+
+model PollVote {
+  id        String   @id @default(cuid())
+  optionId  String
+  userId    String
+  createdAt DateTime @default(now())
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([optionId, userId])
+  @@index([userId])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String   @db.VarChar(120)
+  description String   @db.VarChar(2000)
+  location    String   @db.VarChar(200)
+  startsAt    DateTime
+  creatorId   String
+  createdAt   DateTime @default(now())
+  creator     User     @relation("EventCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  attendees   EventAttendee[]
+  @@index([startsAt])
+  @@index([creatorId])
+}
+
+model EventAttendee {
+  id        String   @id @default(cuid())
+  eventId   String
+  userId    String
+  status    String   @default("GOING") @db.VarChar(12)
+  joinedAt  DateTime @default(now())
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([eventId, userId])
+  @@index([userId])
 }
