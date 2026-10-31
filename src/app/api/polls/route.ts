@@ -1,0 +1,8 @@
+import {NextResponse} from "next/server";
+import {z} from "zod";
+import {getCurrentUser,hasSameOrigin} from "@/lib/auth";
+import {prisma} from "@/lib/prisma";
+export const runtime="nodejs";
+const schema=z.object({question:z.string().trim().min(5).max(300),options:z.array(z.string().trim().min(1).max(120)).min(2).max(6)});
+export async function GET(){const user=await getCurrentUser();if(!user)return NextResponse.json({error:"Authentication required."},{status:401});const polls=await prisma.poll.findMany({take:50,orderBy:{createdAt:"desc"},include:{creator:{select:{id:true,name:true}},options:{include:{_count:{select:{votes:true}},votes:{where:{userId:user.id},select:{id:true}}}}}});return NextResponse.json({polls:polls.map(p=>({...p,options:p.options.map(({votes,...o})=>({...o,votedByMe:votes.length>0}))}))});}
+export async function POST(req:Request){if(!hasSameOrigin(req))return NextResponse.json({error:"Invalid request origin."},{status:403});const user=await getCurrentUser();if(!user)return NextResponse.json({error:"Authentication required."},{status:401});const body=await req.json().catch(()=>null);const parsed=schema.safeParse(body);if(!parsed.success)return NextResponse.json({error:"Poll needs a question and 2–6 options."},{status:400});const options=[...new Set(parsed.data.options.map(x=>x.trim()).filter(Boolean))];if(options.length<2)return NextResponse.json({error:"Add at least two different options."},{status:400});const poll=await prisma.poll.create({data:{question:parsed.data.question,creatorId:user.id,options:{create:options.map(text=>({text}))}},include:{options:true}});return NextResponse.json({poll},{status:201});}
