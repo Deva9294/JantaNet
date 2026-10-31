@@ -1,0 +1,5 @@
+import {NextResponse} from "next/server";
+import {getCurrentUser,hasSameOrigin} from "@/lib/auth";
+import {prisma} from "@/lib/prisma";
+export const runtime="nodejs";
+export async function POST(req:Request,ctx:{params:Promise<{groupId:string}>}){if(!hasSameOrigin(req))return NextResponse.json({error:"Invalid request origin."},{status:403});const user=await getCurrentUser();if(!user)return NextResponse.json({error:"Authentication required."},{status:401});const {groupId}=await ctx.params;const group=await prisma.group.findUnique({where:{id:groupId},select:{id:true,privacy:true}});if(!group)return NextResponse.json({error:"Group not found."},{status:404});if(group.privacy==="PRIVATE")return NextResponse.json({error:"Private group requests are not enabled yet."},{status:403});const key={groupId_userId:{groupId,userId:user.id}};const existing=await prisma.groupMember.findUnique({where:key});if(existing){await prisma.groupMember.delete({where:{id:existing.id}});return NextResponse.json({joined:false});}await prisma.groupMember.create({data:{groupId,userId:user.id}});return NextResponse.json({joined:true});}
