@@ -25,7 +25,7 @@ export default function HomePage() {
           </div>
           <div className="nav-actions">
             <a className="btn" href="#modules">Explore</a>
-            <a className="btn btn-primary" href="#roadmap"}>Get updates <ArrowRight size={16} /></a>
+            <a className="btn btn-primary" href="#roadmap">Get updates <ArrowRight size={16} /></a>
           </div>
         </nav>
       </header>
