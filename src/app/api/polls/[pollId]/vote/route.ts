@@ -1,0 +1,5 @@
+import {NextResponse} from "next/server";
+import {getCurrentUser,hasSameOrigin} from "@/lib/auth";
+import {prisma} from "@/lib/prisma";
+export const runtime="nodejs";
+export async function POST(req:Request,ctx:{params:Promise<{pollId:string}>}){if(!hasSameOrigin(req))return NextResponse.json({error:"Invalid request origin."},{status:403});const user=await getCurrentUser();if(!user)return NextResponse.json({error:"Authentication required."},{status:401});const {pollId}=await ctx.params;const body=await req.json().catch(()=>null);const optionId=typeof body?.optionId==="string"?body.optionId:"";const option=await prisma.pollOption.findFirst({where:{id:optionId,pollId},select:{id:true}});if(!option)return NextResponse.json({error:"Invalid poll option."},{status:400});const prior=await prisma.pollVote.findFirst({where:{option:{pollId},userId:user.id}});if(prior)return NextResponse.json({error:"You have already voted in this poll."},{status:409});await prisma.pollVote.create({data:{optionId,userId:user.id}});return NextResponse.json({voted:true});}
