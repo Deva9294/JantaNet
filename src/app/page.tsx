@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowRight, Globe2, ShieldCheck, Sparkles, Users, MessageCircle, PlaySquare, BriefcaseBusiness, Cloud, Wallet, Bot, RadioTower } from "lucide-react";
 
 const modules = [
@@ -16,10 +17,10 @@ export default function HomePage() {
     <>
       <header className="site-header">
         <nav className="container nav" aria-label="Main navigation">
-          <a className="brand" href="/" aria-label="JantaNet home">
+          <Link className="brand" href="/" aria-label="JantaNet home">
             <span className="brand-mark"><RadioTower size={21} /></span>
             <span>Janta<span className="gradient-text">Net</span></span>
-          </a>
+          </Link>
           <div className="nav-links">
             <a href="#modules">Modules</a><a href="/feed">Community feed</a><a href="/community">Community Hub</a><a href="#principles">Our principles</a><a href="#roadmap">Roadmap</a>
           </div>
