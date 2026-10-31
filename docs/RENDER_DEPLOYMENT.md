@@ -8,18 +8,18 @@ The repository includes a Render Blueprint at `render.yaml`. It creates a Node w
 2. Create a managed PostgreSQL database. Use a production database with backups enabled; do not use an ephemeral/local database.
 3. In the Render web service environment, set `DATABASE_URL` to the database's **internal** connection URL when the database and service are in the same Render region. Keep TLS/SSL required as directed by the database provider. Never commit this value.
 4. Confirm `NEXT_PUBLIC_APP_URL` matches the actual public Render service URL. The blueprint default is `https://jantanet.onrender.com`; change it if Render assigns a different hostname or a custom domain is connected.
-5. Deploy. The build runs `npm install`, Prisma Client generation and `next build`. The start command applies committed migrations using `prisma migrate deploy` before starting Next.js.
+5. Deploy. The build runs `npm install --include=dev`, Prisma Client generation and `next build`. The explicit `--include=dev` is required because TypeScript, ESLint and Prisma CLI are development dependencies even when Render sets `NODE_ENV=production`. The start command applies committed migrations using `prisma migrate deploy` before starting Next.js.
 
 ## Render settings
 
 - Runtime: Node
 - Node version: 20+ (the package requires Node >=20.9)
-- Build: `npm install && npm run db:generate && npm run build`
+- Build: `npm install --include=dev && npm run db:generate && npm run build`
 - Start: `npm run db:deploy && npm start`
 - Health check: `/api/health`
 - Required secret: `DATABASE_URL`
 
-The repository currently has no npm lockfile, so the blueprint uses `npm install` rather than `npm ci`. Add and commit a lockfile before adopting immutable/reproducible installs.
+The repository currently has no npm lockfile, so the blueprint uses `npm install --include=dev` rather than `npm ci`. Add and commit a lockfile before adopting immutable/reproducible installs.
 
 ## First administrator
 
