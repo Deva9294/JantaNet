@@ -45,3 +45,13 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/SECURITY.md](docs/SEC
 - Public registration always creates a USER role.
 - Sessions store only a hash of a cryptographically random token.
 - Payment custody, end-to-end encrypted chat, large-scale video and billion-user capacity are not claimed as implemented.
+
+
+## Community modules (Phase 3)
+
+- `/feed`: authenticated post feed with post creation, likes and paginated listing.
+- `/community`: create and browse public groups, pages, polls and upcoming events.
+- API routes under `/api/groups`, `/api/pages`, `/api/polls`, and `/api/events` support membership, following, voting and attendance.
+- Apply database migrations with `npm run db:deploy` after setting `DATABASE_URL`.
+
+Private group join requests, moderation workflows, notifications, media uploads and real-time updates are not implemented yet. Do not expose this build publicly until migrations, CI, email verification, rate limiting and production security checks pass.
