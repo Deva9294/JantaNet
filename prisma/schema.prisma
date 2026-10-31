@@ -164,6 +164,7 @@ model Poll {
   createdAt DateTime @default(now())
   creator   User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   options   PollOption[]
+  votes     PollVote[]
   @@index([createdAt])
 }
 
@@ -178,12 +179,14 @@ model PollOption {
 
 model PollVote {
   id        String   @id @default(cuid())
+  pollId    String
   optionId  String
   userId    String
   createdAt DateTime @default(now())
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
   option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@unique([optionId, userId])
+  @@unique([pollId, userId])
   @@index([userId])
 }
 
