@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   return NextResponse.json({
     status: "ok",
-    service: "j antanet-web".replace(" ", ""),
+    service: "jantanet-web",
     phase: "foundation",
     timestamp: new Date().toISOString()
   });
