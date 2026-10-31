@@ -1,0 +1,5 @@
+import {NextResponse} from "next/server";
+import {getCurrentUser,hasSameOrigin} from "@/lib/auth";
+import {prisma} from "@/lib/prisma";
+export const runtime="nodejs";
+export async function POST(req:Request,ctx:{params:Promise<{eventId:string}>}){if(!hasSameOrigin(req))return NextResponse.json({error:"Invalid request origin."},{status:403});const user=await getCurrentUser();if(!user)return NextResponse.json({error:"Authentication required."},{status:401});const {eventId}=await ctx.params;const event=await prisma.event.findUnique({where:{id:eventId},select:{id:true,startsAt:true}});if(!event)return NextResponse.json({error:"Event not found."},{status:404});if(event.startsAt<new Date())return NextResponse.json({error:"This event has already started."},{status:400});const key={eventId_userId:{eventId,userId:user.id}};const existing=await prisma.eventAttendee.findUnique({where:key});if(existing){await prisma.eventAttendee.delete({where:{id:existing.id}});return NextResponse.json({attending:false});}await prisma.eventAttendee.create({data:{eventId,userId:user.id}});return NextResponse.json({attending:true});}
