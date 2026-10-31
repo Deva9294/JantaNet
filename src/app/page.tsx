@@ -21,7 +21,7 @@ export default function HomePage() {
             <span>Janta<span className="gradient-text">Net</span></span>
           </a>
           <div className="nav-links">
-            <a href="#modules">Modules</a><a href="#principles">Our principles</a><a href="#roadmap">Roadmap</a>
+            <a href="#modules">Modules</a><a href="/feed">Community feed</a><a href="#principles">Our principles</a><a href="#roadmap">Roadmap</a>
           </div>
           <div className="nav-actions">
             <a className="btn" href="#modules">Explore</a>
