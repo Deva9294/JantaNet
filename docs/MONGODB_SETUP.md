@@ -1,12 +1,12 @@
 # MongoDB Atlas setup
 
-JantaNet now targets MongoDB through Prisma's MongoDB connector.
+JantaNet uses a **new, empty MongoDB database** through Prisma's MongoDB connector. The intended database name is `jantanet`.
 
 ## Configure local development
 
 1. Create a MongoDB Atlas cluster and a database user with a strong password.
 2. Add your development IP to the Atlas network access list. For production, allow only the outbound IP ranges supported by your hosting plan where possible; avoid a permanent `0.0.0.0/0` rule.
-3. Copy the Atlas SRV connection string and select the `jantanet` database name.
+3. Copy the Atlas SRV connection string and use the `jantanet` database name.
 4. Set `DATABASE_URL` in your local environment:
 
 ```env
@@ -17,13 +17,13 @@ DATABASE_URL=mongodb+srv://USER:PASSWORD@CLUSTER.mongodb.net/jantanet?retryWrite
 
 ## Render
 
-Set the Render service's `DATABASE_URL` environment variable to the Atlas connection string. Keep it secret; do not commit it to Git. The start command runs `prisma db push` before starting Next.js.
+Set the Render service's `DATABASE_URL` environment variable to the Atlas connection string. Keep it secret; do not commit it to Git or send it in chat. The start command runs `prisma db push` before starting Next.js.
 
-The health endpoint now pings MongoDB and returns HTTP 503 when the database is unreachable.
+The health endpoint pings MongoDB and returns HTTP 503 when the database is unreachable.
 
-## Important migration note
+## Fresh database decision
 
-Changing the Prisma provider does not migrate existing PostgreSQL records. This schema uses MongoDB ObjectIds, so existing PostgreSQL CUID identifiers cannot be copied directly into the new collections. If the previous PostgreSQL database contains production users or content, export and transform those records into new MongoDB ObjectIds before switching traffic. Do not point this release at the old PostgreSQL URL.
+This setup intentionally starts with a **fresh database**. Do not import or copy records from the previous PostgreSQL database. The first users, posts and other records will be created in MongoDB after the application is connected. Point Render only to the new Atlas database named `jantanet`, not to the old PostgreSQL URL.
 
 ## Current scope
 
