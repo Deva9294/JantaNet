@@ -3,7 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
+  relationMode = "prisma"
   url      = env("DATABASE_URL")
 }
 
@@ -14,14 +15,14 @@ enum UserRole {
 }
 
 model User {
-  id           String    @id @default(cuid())
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   email        String    @unique
   passwordHash String
   role         UserRole  @default(USER)
   emailVerifiedAt DateTime?
   avatarUrl    String?
-  bio          String?   @db.VarChar(280)
+  bio          String?   
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   sessions     Session[]
@@ -43,9 +44,9 @@ model User {
 }
 
 model Session {
-  id        String   @id @default(cuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   tokenHash String   @unique
-  userId    String
+  userId    String @db.ObjectId
   expiresAt DateTime
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -56,9 +57,9 @@ model Session {
 
 
 model Post {
-  id        String   @id @default(cuid())
-  authorId  String
-  content   String   @db.VarChar(5000)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  authorId  String @db.ObjectId
+  content   String   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -70,10 +71,10 @@ model Post {
 }
 
 model Comment {
-  id        String   @id @default(cuid())
-  postId    String
-  authorId  String
-  content   String   @db.VarChar(2000)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId    String @db.ObjectId
+  authorId  String @db.ObjectId
+  content   String   
   createdAt DateTime @default(now())
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -83,9 +84,9 @@ model Comment {
 }
 
 model Like {
-  id        String   @id @default(cuid())
-  postId    String
-  userId    String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId    String @db.ObjectId
+  userId    String @db.ObjectId
   createdAt DateTime @default(now())
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -95,9 +96,9 @@ model Like {
 }
 
 model Follow {
-  id          String   @id @default(cuid())
-  followerId  String
-  followingId String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  followerId  String @db.ObjectId
+  followingId String @db.ObjectId
   createdAt   DateTime @default(now())
   follower    User     @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
   following   User     @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
@@ -108,12 +109,12 @@ model Follow {
 
 
 model Group {
-  id          String   @id @default(cuid())
-  name        String   @db.VarChar(80)
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   
   slug        String   @unique
-  description String   @db.VarChar(1000)
-  privacy     String   @default("PUBLIC") @db.VarChar(12)
-  creatorId   String
+  description String   
+  privacy     String   @default("PUBLIC") 
+  creatorId   String @db.ObjectId
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   creator     User     @relation("GroupCreator", fields: [creatorId], references: [id], onDelete: Cascade)
@@ -122,10 +123,10 @@ model Group {
 }
 
 model GroupMember {
-  id        String   @id @default(cuid())
-  groupId   String
-  userId    String
-  role      String   @default("MEMBER") @db.VarChar(12)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  groupId   String @db.ObjectId
+  userId    String @db.ObjectId
+  role      String   @default("MEMBER") 
   joinedAt  DateTime @default(now())
   group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -134,12 +135,12 @@ model GroupMember {
 }
 
 model Page {
-  id          String   @id @default(cuid())
-  name        String   @db.VarChar(80)
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   
   slug        String   @unique
-  description String   @db.VarChar(1000)
-  category    String   @db.VarChar(40)
-  creatorId   String
+  description String   
+  category    String   
+  creatorId   String @db.ObjectId
   createdAt   DateTime @default(now())
   creator     User     @relation("PageCreator", fields: [creatorId], references: [id], onDelete: Cascade)
   followers   PageFollower[]
@@ -147,9 +148,9 @@ model Page {
 }
 
 model PageFollower {
-  id        String   @id @default(cuid())
-  pageId    String
-  userId    String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  pageId    String @db.ObjectId
+  userId    String @db.ObjectId
   followedAt DateTime @default(now())
   page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -158,9 +159,9 @@ model PageFollower {
 }
 
 model Poll {
-  id        String   @id @default(cuid())
-  question  String   @db.VarChar(300)
-  creatorId String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  question  String   
+  creatorId String @db.ObjectId
   createdAt DateTime @default(now())
   creator   User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   options   PollOption[]
@@ -169,19 +170,19 @@ model Poll {
 }
 
 model PollOption {
-  id     String @id @default(cuid())
-  pollId String
-  text   String @db.VarChar(120)
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  pollId String @db.ObjectId
+  text   String 
   poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
   votes  PollVote[]
   @@index([pollId])
 }
 
 model PollVote {
-  id        String   @id @default(cuid())
-  pollId    String
-  optionId  String
-  userId    String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  pollId    String @db.ObjectId
+  optionId  String @db.ObjectId
+  userId    String @db.ObjectId
   createdAt DateTime @default(now())
   poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
   option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
@@ -191,12 +192,12 @@ model PollVote {
 }
 
 model Event {
-  id          String   @id @default(cuid())
-  title       String   @db.VarChar(120)
-  description String   @db.VarChar(2000)
-  location    String   @db.VarChar(200)
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String   
+  description String   
+  location    String   
   startsAt    DateTime
-  creatorId   String
+  creatorId   String @db.ObjectId
   createdAt   DateTime @default(now())
   creator     User     @relation("EventCreator", fields: [creatorId], references: [id], onDelete: Cascade)
   attendees   EventAttendee[]
@@ -205,10 +206,10 @@ model Event {
 }
 
 model EventAttendee {
-  id        String   @id @default(cuid())
-  eventId   String
-  userId    String
-  status    String   @default("GOING") @db.VarChar(12)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId   String @db.ObjectId
+  userId    String @db.ObjectId
+  status    String   @default("GOING") 
   joinedAt  DateTime @default(now())
   event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
