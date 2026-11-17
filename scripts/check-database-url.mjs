@@ -24,7 +24,7 @@ if (!parsed.hostname) {
   fail("DATABASE_URL is missing the MongoDB cluster hostname.");
 }
 
-const databaseName = parsed.pathname.replace(/^\\/+|\\/+$/g, "");
+const databaseName = parsed.pathname.split("/").filter(Boolean).join("");
 if (!databaseName) {
   fail("MongoDB database name is missing. Add /jantanet before the ? query string. Example: mongodb+srv://USER:PASSWORD@CLUSTER.mongodb.net/jantanet?retryWrites=true&w=majority");
 }
