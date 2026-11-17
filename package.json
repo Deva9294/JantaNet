@@ -8,9 +8,10 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "db:check-url": "node scripts/check-database-url.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma db push",
-    "db:deploy": "prisma db push",
+    "db:deploy": "npm run db:check-url && prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate"
   },
