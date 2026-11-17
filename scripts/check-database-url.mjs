@@ -1,7 +1,7 @@
 const raw = process.env.DATABASE_URL;
 
 function fail(message) {
-  console.error(\`[database config] \${message}\`);
+  console.error("[database config] " + message);
   process.exit(1);
 }
 
@@ -24,7 +24,7 @@ if (!parsed.hostname) {
   fail("DATABASE_URL is missing the MongoDB cluster hostname.");
 }
 
-const databaseName = parsed.pathname.replace(/^\/+|\/+$/g, "");
+const databaseName = parsed.pathname.replace(/^\\/+|\\/+$/g, "");
 if (!databaseName) {
   fail("MongoDB database name is missing. Add /jantanet before the ? query string. Example: mongodb+srv://USER:PASSWORD@CLUSTER.mongodb.net/jantanet?retryWrites=true&w=majority");
 }
@@ -33,4 +33,4 @@ if (databaseName.includes("/")) {
   fail("DATABASE_URL contains an invalid database path. Use one database name: /jantanet.");
 }
 
-console.log(\`[database config] OK — MongoDB host configured; database path is /\${databaseName}. Credentials hidden.\`);
+console.log("[database config] OK — MongoDB host configured; database path is /" + databaseName + ". Credentials hidden.");
